@@ -1,0 +1,222 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Refined Types, Tagged Types and Co.</title>
+    <link rel="stylesheet" href="https://d1azc1qln24ryf.cloudfront.net/114779/Socicon/style-cf.css?aovs">
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+        @import url(https://fonts.googleapis.com/css?family=Droid+Sans:400,700,400italic);
+        @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+        @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+        body {
+            font-family: 'Droid Sans';
+        }
+
+        h1, h2, h3 {
+            font-family: 'Yanone Kaffeesatz';
+            font-weight: normal;
+        }
+
+        a {
+            color: #65a9b6;
+            text-decoration-skip: ink;
+            -webkit-text-decoration-skip: ink;
+        }
+
+        .remark-code, .remark-inline-code {
+            background: #2b2b2b !important;
+            font-family: 'Ubuntu Mono';
+            font-size: 100%;
+        }
+
+        .remark-container {
+            background-color: #2b2b2b;
+        }
+
+        .remark-slide-content {
+            background-color: #2b2b2b;
+            color: #f3f3f3;
+            font-size: 22px;
+        }
+
+        .remark-slide-scaler {
+            box-shadow: none;
+        }
+
+        .vertical-align-middle * {
+            vertical-align: middle;
+        }
+    </style>
+    <script src="https://use.fontawesome.com/3729cac000.js"></script>
+</head>
+<body>
+<textarea id="source">
+
+class: center, middle
+# Scala Refined Types, Tagged Types and Co.
+from:
+```scala
+    def doSomething(postcode: String, journeyId: String, utr: String): ...
+```
+to:
+```scala
+   def doSomething(postcode: Postcode, journeyId: JourneyId, utr: Utr): ...
+```
+without using:
+```scala
+  type Postcode = String  type JourneyId = String ... ;-)
+```
+## Roberto Malagigi
+## Tuesday 31 December 2024 - DASS Project
+
+---
+
+from Cats NonEmptyList documentation ... https://typelevel.org/cats/datatypes/nel.html
+
+```scala
+def average(xs: List[Int]): Double = xs.sum / xs.length.toDouble
+```
+
+```scala
+
+def average(xs: List[Int]): Option[Double] = if (xs.isEmpty)
+  None
+    else
+  Some(xs.sum / xs.length.toDouble)
+
+```
+
+"...demand more specific arguments"
+
+
+```scala
+import cats.data.NonEmptyList
+
+final case class NonEmptyList[+A](head: A, tail: List[A]) ...
+
+
+
+def average(xs: NonEmptyList[Int]): Double = xs.reduceLeft(_+_) / xs.length.toDouble
+
+
+  ```
+---
+
+```scala
+
+import cats.data.NonEmptyList
+
+def average(xs: NonEmptyList[Int]): Double =
+  xs.reduceLeft(_+_) / xs.length.toDouble
+
+```
+    2 advantages:
+
+    1) No validation logic but only the actual logic of computing the average of the list.
+
+    2) Move your validation to the very borders of your program,
+       .... where the input enters your system.
+
+---
+```scala
+val postcode: String = ...
+val journeyId: String = ...
+val utr: String = ...
+val companyNumber: String = ...
+
+def doSomething(postcode: String,
+                journeyId: String,
+                utr: String,
+                companyNumber: String): String =  ....
+
+1) doSomething(utr, journeyId, postcode, companyNumber)
+2) doSomething(utr, companyNumber, postcode, journeyId)
+3) doSomething("Hello World", "Hello World", "Hello World", "Hello World")
+
+4) doSomething(postcode, journeyId, utr, companyNumber)
+
+
+even worst .... suppose you have a map
+
+val journeyIdPostcodeMap : Map[String, String]
+
+ ```
+
+---
+```scala
+val postcode: Postcode = ...
+val journeyId: JourneyId = ...
+val utr: Utr = ...
+val companyNumber: CompanyNumber = ...
+
+def doSomething(postcode: Postcode,
+                journeyId: JourneyId,
+                utr: Utr,
+                companyNumber: CompanyNumber): String = ....
+
+// doSomething(utr, journeyId, postcode, companyNumber) compilation problem
+// doSomething(utr, companyNumber, postcode, journeyId) compilation problem
+// doSomething("Hello World", "Hello World", "Hello World", "Hello World")
+
+doSomething(postcode, journeyId, utr, companyNumber)
+
+of course without using:
+
+  type Postcode = String
+  type JourneyId = String
+  ...
+
+.. because they are just aliases
+
+... also our previous maps now looks better
+    val journeyIdPostcodeMap : Map[JourneyId, Postcode]
+
+```
+
+---
+
+We need a way to do 2 things:
+
+    1) Define new types
+
+    2) Create instances of those types properly initialized
+
+For example if I decide to use a case class I dont want to use something like:
+
+```scala
+final case class AnAttemptOfUtr (value: String)
+```
+because I could write:
+```scala
+    AnAttemptOfUtr("Hello world")
+    AnAttemptOfUtr("{ \"a\" : 1}")
+    AnAttemptOfUtr("123")
+    AnAttemptOfUtr("abcdef")
+    AnAttemptOfUtr("3d123989-b191-4865-9799-de51f96be3e5")
+
+    AnAttemptOfUtr("1234567890") // hurrah!!!
+```
+
+---
+
+class: center, middle
+
+# This was just the introduction... now let's get started... let's open README.md
+# Many thanks!
+
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>
+    var slideshow = remark.create({
+        ratio: '16:9',
+        slideNumberFormat: 'Slide %current% of %total%',
+        highlightStyle: 'monokai',
+        navigation: {
+            scroll: false
+        }
+    });
+</script>
+</body>
+</html>
