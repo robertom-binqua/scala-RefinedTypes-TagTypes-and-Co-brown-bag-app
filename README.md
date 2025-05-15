@@ -4,7 +4,7 @@ Hi there,
 
 This is the project I presented during my brown bag session on Tuesday, 31 December 2024, as part of the DASS project. The original presentation was first delivered in 2022, using Scala 2.12, during my time at Capgemini. The updated version, with only minor adjustments, has been adapted for Scala 2.13 and was presented while I was working at Accenture in 2024.
 
-The presentation.html contains a few slides I showed during the presentation.
+The [presentation.html](./presentation.html) contains a few slides I showed during the presentation.
 
 I wrote some tests and the best way to inspect, navigate and understand the code is to see and run the tests and play with them.
 
