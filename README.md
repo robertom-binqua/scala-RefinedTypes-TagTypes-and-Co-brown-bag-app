@@ -74,3 +74,6 @@ If you have any questions feel free to contact me via robertom@binqua.co.uk
 Have a nice day
 
 Roberto
+
+PS: update: The way macro works in scala has changed from scala 2.13 to scala 3 and for scala 3 the is a new solution for Refined Type: [Iron](https://github.com/Iltotore/Iron). Something to check!
+
